@@ -388,7 +388,7 @@ public class MainActivity extends Activity {
             if (ServiceLabel == null) ServiceLabel = Packagelabel;
             holder.imageView.setImageDrawable(icon);
             holder.textb.setText(Packagelabel.equals(ServiceLabel) ? ServiceLabel : String.format("%s/%s", Packagelabel, ServiceLabel));
-            holder.texta.setText(Description == null || Description.length() == 0 ? "该服务没有描述" : Description);
+            holder.texta.setText(Description == null || Description.isEmpty() ? "该服务没有描述" : Description);
 
 
             holder.ib.setImageResource(daemon.contains(serviceName) ? R.drawable.lock1 : R.drawable.lock);
@@ -423,15 +423,20 @@ public class MainActivity extends Activity {
                         if (holder.sw.isChecked()){
                             tmpSettingValue = serviceName + ":" + s;
                             top = serviceName + ":" + top;
-                        } else {
+                            sp.edit().putString("top", top).apply();
+                            Sort();
+                        } else if(daemon.contains(serviceName) && !holder.sw.isChecked()) {
+                            holder.sw.setChecked(true);
+                            sp.edit().putString("top", top).apply();
+                            Sort();
+                        }else {
                             tmpSettingValue = s.replace(serviceName + ":", "").replace(packageName[0] + "/" + packageName[0] + packageName[1] + ":", "").replace(serviceName, "").replace(packageName[0] + "/" + packageName[0] + packageName[1], "").replace(serviceName, "");
                             top = top.replace(serviceName + ":", "");
+                            sp.edit().putString("top", top).apply();
+                            Sort();
                         }
-
-                        sp.edit().putString("top", top).apply();
                         Settings.Secure.putString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, tmpSettingValue);
                         holder.ib.setVisibility(holder.sw.isChecked() ? View.VISIBLE : View.INVISIBLE);
-
                     }
                 }
             });
@@ -450,7 +455,7 @@ public class MainActivity extends Activity {
                     if ((fb & 4) != 0) feedback += "可听（未说出）反馈\n";
                     if ((fb & 2) != 0) feedback += "触觉反馈\n";
                     if ((fb & 1) != 0) feedback += "口头反馈\n";
-                    if (feedback.equals("")) feedback = "无\n";
+                    if (feedback.isEmpty()) feedback = "无\n";
 
 
                     int cap = info.getCapabilities();
@@ -461,7 +466,7 @@ public class MainActivity extends Activity {
                     if ((cap & 4) != 0) capa += "请求增强的Web辅助功能增强功能。 例如，安装脚本以使网页内容更易于访问\n";
                     if ((cap & 2) != 0) capa += "请求触摸探索模式，使触屏操作变成鼠标操作\n";
                     if ((cap & 1) != 0) capa += "读取屏幕内容\n";
-                    if (capa.equals("")) capa = "无\n";
+                    if (capa.isEmpty()) capa = "无\n";
 
                     int eve = info.eventTypes;
                     String event = "";
@@ -490,7 +495,7 @@ public class MainActivity extends Activity {
                     if ((eve & 8) != 0) event += "控件被选取的事件\n";
                     if ((eve & 4) != 0) event += "长按控件的事件\n";
                     if ((eve & 2) != 0) event += "点击控件的事件\n";
-                    if (event.equals("")) event = "无\n";
+                    if (event.isEmpty()) event = "无\n";
 
 
                     String range = info.packageNames == null ? "全局生效" : Arrays.toString(info.packageNames).replace("[", "").replace("]", "").replace(", ", "\n").replace(",", "\n");
@@ -504,7 +509,7 @@ public class MainActivity extends Activity {
                     if ((fg & 4) != 0) flag += "要求系统进入触摸探索模式\n";
                     if ((fg & 2) != 0) flag += "查询窗口中的不重要内容\n";
                     if ((fg & 1) != 0) flag += "默认\n";
-                    if (flag.equals("")) flag = "无\n";
+                    if (flag.isEmpty()) flag = "无\n";
 
 
                     try {
@@ -517,7 +522,7 @@ public class MainActivity extends Activity {
                         textView.setTextColor(night ? Color.WHITE : Color.BLACK);
                         textView.setText(String.format("服务类名：\n%s\n\n特殊能力：\n%s\n生效范围：\n%s\n\n反馈方式：\n%s\n捕获事件类型：\n%s\n特殊标志：\n%s", serviceName, capa, range, feedback, event, flag));
                         scrollView.addView(textView);
-                        if (info.getSettingsActivityName() != null && info.getSettingsActivityName().length() > 0)
+                        if (info.getSettingsActivityName() != null && !info.getSettingsActivityName().isEmpty())
                             builder.setNegativeButton("设置", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -537,30 +542,6 @@ public class MainActivity extends Activity {
                     }
                 }
             });
-            String finalServiceLabel = ServiceLabel;
-//            convertView.setOnLongClickListener(new View.OnLongClickListener() {
-//                @Override
-//                public boolean onLongClick(View view) {
-//                    if (!top.contains(serviceName)) {
-//                        top = serviceName + ":" + top;
-//                        Toast.makeText(MainActivity.this, "已将" + finalServiceLabel + "置顶", Toast.LENGTH_SHORT).show();
-//                    } else {
-//                        top = top.replace(serviceName + ":", "");
-//                        Toast.makeText(MainActivity.this, "已将" + finalServiceLabel + "取消置顶", Toast.LENGTH_SHORT).show();
-//                    }
-//                    sp.edit().putString("top", top).apply();
-//                    Sort();
-//                    runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            listView.setAdapter(new adapter(tmp));
-//                        }
-//                    });
-//                    return true;
-//                }
-//            });
-//            if (top.contains(serviceName))
-//                convertView.setBackgroundColor(night ? Color.DKGRAY : Color.LTGRAY);
             return convertView;
         }
 

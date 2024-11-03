@@ -22,11 +22,8 @@ import android.provider.Settings;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class daemonService extends Service {
@@ -73,7 +70,7 @@ public class daemonService extends Service {
         StringBuilder add = new StringBuilder();
         StringBuilder add1 = new StringBuilder();
         for (String serviceName : serviceNames) {
-            if (serviceName == null || serviceName.equals("null") || serviceName.length() == 0 || s.contains(serviceName) || !l.contains(serviceName))
+            if (serviceName == null || serviceName.equals("null") || serviceName.isEmpty() || s.contains(serviceName) || !l.contains(serviceName))
                 continue;
 
             ApplicationInfo applicationInfo = new ApplicationInfo();
@@ -105,7 +102,7 @@ public class daemonService extends Service {
     public void onCreate() {
         super.onCreate();
         sp = getSharedPreferences("data", 0);
-        if (sp.getString("daemon", "").length() == 0) {
+        if (sp.getString("daemon", "").isEmpty()) {
             stopSelf();
             return;
         }

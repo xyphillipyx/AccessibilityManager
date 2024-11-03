@@ -124,7 +124,7 @@ public class MainActivity extends Activity {
         if (actionBar != null) {
             actionBar.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        setTitle("无障碍管理");
+        setTitle("无障碍管理器");
         //注册shizuku授权结果监听器
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermission()) {
             listenerAdded = true;
@@ -420,11 +420,15 @@ public class MainActivity extends Activity {
                         String s = Settings.Secure.getString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
                         if (s == null) s = "";
 
-                        if (holder.sw.isChecked())
+                        if (holder.sw.isChecked()){
                             tmpSettingValue = serviceName + ":" + s;
-                        else
+                            top = serviceName + ":" + top;
+                        } else {
                             tmpSettingValue = s.replace(serviceName + ":", "").replace(packageName[0] + "/" + packageName[0] + packageName[1] + ":", "").replace(serviceName, "").replace(packageName[0] + "/" + packageName[0] + packageName[1], "").replace(serviceName, "");
+                            top = top.replace(serviceName + ":", "");
+                        }
 
+                        sp.edit().putString("top", top).apply();
                         Settings.Secure.putString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, tmpSettingValue);
                         holder.ib.setVisibility(holder.sw.isChecked() ? View.VISIBLE : View.INVISIBLE);
 
@@ -534,29 +538,29 @@ public class MainActivity extends Activity {
                 }
             });
             String finalServiceLabel = ServiceLabel;
-            convertView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    if (!top.contains(serviceName)) {
-                        top = serviceName + ":" + top;
-                        Toast.makeText(MainActivity.this, "已将" + finalServiceLabel + "置顶", Toast.LENGTH_SHORT).show();
-                    } else {
-                        top = top.replace(serviceName + ":", "");
-                        Toast.makeText(MainActivity.this, "已将" + finalServiceLabel + "取消置顶", Toast.LENGTH_SHORT).show();
-                    }
-                    sp.edit().putString("top", top).apply();
-                    Sort();
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            listView.setAdapter(new adapter(tmp));
-                        }
-                    });
-                    return true;
-                }
-            });
-            if (top.contains(serviceName))
-                convertView.setBackgroundColor(night ? Color.DKGRAY : Color.LTGRAY);
+//            convertView.setOnLongClickListener(new View.OnLongClickListener() {
+//                @Override
+//                public boolean onLongClick(View view) {
+//                    if (!top.contains(serviceName)) {
+//                        top = serviceName + ":" + top;
+//                        Toast.makeText(MainActivity.this, "已将" + finalServiceLabel + "置顶", Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        top = top.replace(serviceName + ":", "");
+//                        Toast.makeText(MainActivity.this, "已将" + finalServiceLabel + "取消置顶", Toast.LENGTH_SHORT).show();
+//                    }
+//                    sp.edit().putString("top", top).apply();
+//                    Sort();
+//                    runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            listView.setAdapter(new adapter(tmp));
+//                        }
+//                    });
+//                    return true;
+//                }
+//            });
+//            if (top.contains(serviceName))
+//                convertView.setBackgroundColor(night ? Color.DKGRAY : Color.LTGRAY);
             return convertView;
         }
 

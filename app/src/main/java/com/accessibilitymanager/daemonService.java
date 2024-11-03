@@ -91,7 +91,7 @@ public class daemonService extends Service {
         if (add.length() > 0) {
             tmpSettingValue = add + s;
             Settings.Secure.putString(getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, tmpSettingValue);
-            notification.setContentText(add1 + new SimpleDateFormat("时间：H:mm ss秒", Locale.getDefault()).format(Calendar.getInstance().getTime())).setContentTitle("已保活以下无障碍服务：");
+//            notification.setContentText(add1 + new SimpleDateFormat("时间：H:mm ss秒", Locale.getDefault()).format(Calendar.getInstance().getTime())).setContentTitle("已保活以下无障碍服务：");
             systemService.notify(1, notification.build());
         }
     }
@@ -126,8 +126,8 @@ public class daemonService extends Service {
         //发送前台通知
         notification = new Notification.Builder(this)
                 .setAutoCancel(true)
-                .setContentText("猜对了两颗都给你！")
-                .setContentTitle("海绵宝宝，猜猜我有几颗糖~");
+                .setContentTitle("海绵宝宝，猜猜我有几颗糖~")
+                .setContentText("猜对了两颗都给你！");
         systemService = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

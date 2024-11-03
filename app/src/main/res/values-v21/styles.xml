@@ -2,5 +2,7 @@
 <resources>
     <style name="AppTheme" parent="@android:style/Theme.DeviceDefault.Light">
         <item name="android:colorAccent">@color/bg</item>
+        <!-- 浅色模式颜色 -->
+        <item name="buttonDefaultBgColor">#FFFFFF</item>
     </style>
 </resources>

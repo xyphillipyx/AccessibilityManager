@@ -230,18 +230,26 @@ public class MainActivity extends Activity {
 
     private void Sort() {
         tmp = new ArrayList<>(l);
-        Collections.sort(tmp, new Comparator<AccessibilityServiceInfo>() {
-            @Override
-            public int compare(AccessibilityServiceInfo info1, AccessibilityServiceInfo info2) {
-                String id = info1.getId();
-                String id2 = info2.getId();
-                if (top.contains(id2)) {
-                    return (!top.contains(id) || top.indexOf(id) <= top.indexOf(id2)) ? 1 : -1;
-                } else if (top.contains(id)) {
-                    return -1;
-                }
-                return 0;
+        Collections.sort(tmp, (info1, info2) -> {
+            String id = info1.getId();
+            String id2 = info2.getId();
+
+            // 获取 id 和 id2 在 top 中的索引位置
+            int index1 = top.indexOf(id);
+            int index2 = top.indexOf(id2);
+
+            if (index1 != -1 && index2 != -1) {
+                // 如果都在 top 中，按出现顺序排列
+                return Integer.compare(index1, index2);
+            } else if (index1 != -1) {
+                // 如果只有 id 在 top 中，排在前面
+                return -1;
+            } else if (index2 != -1) {
+                // 如果只有 id2 在 top 中，排在前面
+                return 1;
             }
+            // 如果都不在 top 中，保持它们的相对顺序
+            return 0;
         });
     }
 
@@ -422,7 +430,7 @@ public class MainActivity extends Activity {
 
                         if (holder.sw.isChecked()){
                             tmpSettingValue = serviceName + ":" + s;
-                            top = serviceName + ":" + top;
+                            top = serviceName + ":" + top; // 插入到最前面
                             sp.edit().putString("top", top).apply();
                             Sort();
                         } else if(daemon.contains(serviceName) && !holder.sw.isChecked()) {
@@ -430,8 +438,14 @@ public class MainActivity extends Activity {
                             sp.edit().putString("top", top).apply();
                             Sort();
                         }else {
-                            tmpSettingValue = s.replace(serviceName + ":", "").replace(packageName[0] + "/" + packageName[0] + packageName[1] + ":", "").replace(serviceName, "").replace(packageName[0] + "/" + packageName[0] + packageName[1], "").replace(serviceName, "");
-                            top = top.replace(serviceName + ":", "");
+                            // 先从 top 中移除 serviceName，再将其追加到末尾
+                            tmpSettingValue = s.replace(serviceName + ":", "")
+                                    .replace(packageName[0] + "/" + packageName[0] + packageName[1] + ":", "")
+                                    .replace(serviceName, "")
+                                    .replace(packageName[0] + "/" + packageName[0] + packageName[1], "");
+
+                            top = top.replace(serviceName + ":", ""); // 移除 serviceName
+                            top = top + ":" + serviceName; //插入到末尾
                             sp.edit().putString("top", top).apply();
                             Sort();
                         }

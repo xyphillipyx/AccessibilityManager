@@ -29,6 +29,7 @@ android {
         checkReleaseBuilds false
         abortOnError false
     }
+    namespace 'com.accessibilitymanager'
 }
 
 dependencies {

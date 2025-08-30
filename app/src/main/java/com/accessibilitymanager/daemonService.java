@@ -65,6 +65,11 @@ public class daemonService extends Service {
 
 
     private void doDaemon(String s) {
+        List<AccessibilityServiceInfo> serviceInfoList = ((AccessibilityManager) getApplicationContext().getSystemService(Context.ACCESSIBILITY_SERVICE)).getInstalledAccessibilityServiceList();
+        l = new ArrayList<>();
+        for (int i = 0; i < serviceInfoList.size(); i++) {
+            l.add(serviceInfoList.get(i).getId());
+        }
         String list = sp.getString("daemon", "");
         String[] serviceNames = Pattern.compile(":").split(list);
         StringBuilder add = new StringBuilder();

@@ -1,6 +1,7 @@
 # Default ignored files
 .idea/
 .gradle/
+build/
 app/build/
 app/release/
 local.properties

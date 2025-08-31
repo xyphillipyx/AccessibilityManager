@@ -3,10 +3,7 @@ package com.accessibilitymanager;
 import android.Manifest;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.ClipData;
@@ -20,7 +17,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.ContentObserver;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -28,6 +24,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +41,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,7 +59,7 @@ import java.util.regex.Pattern;
 
 import rikka.shizuku.Shizuku;
 
-public class MainActivity extends Activity {
+public class MainActivity extends AppCompatActivity {
 
     private SettingsValueChangeContentObserver mContentOb;
     List<AccessibilityServiceInfo> l, tmp;
@@ -65,6 +69,7 @@ public class MainActivity extends Activity {
     PackageManager pm;
     boolean perm = false;
     private boolean listenerAdded = false;
+    private static final String TAG = "MainActivity";
 
     //自定义一个内容监视器
     class SettingsValueChangeContentObserver extends ContentObserver {
@@ -99,6 +104,13 @@ public class MainActivity extends Activity {
 
         setContentView(R.layout.activity_main);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle("无障碍管理器");
+        }
+
         //设置导航栏透明，UI会好看些
         Window window = getWindow();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -107,11 +119,7 @@ public class MainActivity extends Activity {
             window.setStatusBarColor(Color.TRANSPARENT);
             window.setNavigationBarColor(Color.TRANSPARENT);
         }
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-        setTitle("无障碍管理器");
+
         //注册shizuku授权结果监听器
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkPermission()) {
             listenerAdded = true;
@@ -150,7 +158,7 @@ public class MainActivity extends Activity {
 
 
         if (sp.getBoolean("first", true)) {
-            new AlertDialog.Builder(this)
+            new MaterialAlertDialogBuilder(this)
                     .setTitle("隐私政策")
                     .setMessage("本应用不会收集或记录您的任何信息，也不包含任何联网功能。继续使用则代表您同意上述隐私政策。")
                     .setPositiveButton("OK", null).create().show();
@@ -169,7 +177,7 @@ public class MainActivity extends Activity {
             }
 
         } else {
-            new AlertDialog.Builder(this).setMessage("您的设备尚未启用无障碍服务功能。您可以选择在系统设置-无障碍-打开或关闭任意服务项来激活系统的无障碍服务功能，也可以授权本APP安全设置写入权限以解决.")
+            new MaterialAlertDialogBuilder(this).setMessage("您的设备尚未启用无障碍服务功能。您可以选择在系统设置-无障碍-打开或关闭任意服务项来激活系统的无障碍服务功能，也可以授权本APP安全设置写入权限以解决.")
                     .setNegativeButton("root激活", (dialogInterface, i) -> {
                         Process p;
                         try {
@@ -224,14 +232,6 @@ public class MainActivity extends Activity {
             // 如果都不在 top 中，保持它们的相对顺序
             return 0;
         });
-    }
-
-
-    //返回键退出APP，用于适配安卓12和高于12的系统上返回键默认仅把APP放后台的问题。
-    @Override
-    public void onBackPressed() {
-        finish();
-        super.onBackPressed();
     }
 
     private final Shizuku.OnRequestPermissionResultListener RL = (requestCode, grantResult) -> check();
@@ -300,22 +300,28 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public boolean onMenuItemSelected(int i, MenuItem menuItem) {
-        int itemId = menuItem.getItemId();
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // 这个方法只传递一个 MenuItem 对象，更简洁
+        int itemId = item.getItemId();
+
+        // 你的所有 if/else if 逻辑完全保持不变，
+        // 只是把变量名从 menuItem 改为 item
         if (itemId == R.id.boot) {
-            sp.edit().putBoolean("boot", !menuItem.isChecked()).apply();
-            menuItem.setChecked(!menuItem.isChecked());
+            sp.edit().putBoolean("boot", !item.isChecked()).apply();
+            item.setChecked(!item.isChecked());
         } else if (itemId == R.id.toast) {
-            sp.edit().putBoolean("toast", !menuItem.isChecked()).apply();
-            menuItem.setChecked(!menuItem.isChecked());
+            sp.edit().putBoolean("toast", !item.isChecked()).apply();
+            item.setChecked(!item.isChecked());
         } else if (itemId == R.id.hide) {
-            sp.edit().putBoolean("hide", !menuItem.isChecked()).apply();
-            menuItem.setChecked(!menuItem.isChecked());
+            sp.edit().putBoolean("hide", !item.isChecked()).apply();
+            item.setChecked(!item.isChecked());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 ((ActivityManager) getSystemService(Service.ACTIVITY_SERVICE)).getAppTasks().get(0).setExcludeFromRecents(sp.getBoolean("hide", true));
             }
         }
-        return super.onMenuItemSelected(i, menuItem);
+
+        // 最后，调用 super 的同名方法
+        return super.onOptionsItemSelected(item);
     }
 
     //这个是用于适配列表中的每一项设置项的显示
@@ -345,14 +351,18 @@ public class MainActivity extends Activity {
         @SuppressLint({"ViewHolder", "InflateParams"})
         public View getView(int position, View convertView, ViewGroup parent) {
             ViewHolder holder;
-            convertView = LayoutInflater.from(MainActivity.this).inflate(R.layout.item, null);
-            holder = new ViewHolder();
-            holder.texta = convertView.findViewById(R.id.a);
-            holder.textb = convertView.findViewById(R.id.b);
-            holder.imageView = convertView.findViewById(R.id.c);
-            holder.sw = convertView.findViewById(R.id.s);
-            holder.ib = convertView.findViewById(R.id.ib);
-            convertView.setTag(holder);
+            if (convertView == null) {
+                convertView = LayoutInflater.from(MainActivity.this).inflate(R.layout.item, null);
+                holder = new ViewHolder();
+                holder.texta = convertView.findViewById(R.id.a);
+                holder.textb = convertView.findViewById(R.id.b);
+                holder.imageView = convertView.findViewById(R.id.c);
+                holder.sw = convertView.findViewById(R.id.s);
+                holder.ib = convertView.findViewById(R.id.ib);
+                convertView.setTag(holder);
+            } else {
+                holder = (ViewHolder) convertView.getTag();
+            }
             AccessibilityServiceInfo info = list.get(position);
             String serviceName = info.getId();
             String[] packageName = Pattern.compile("/").split(serviceName);
@@ -426,7 +436,7 @@ public class MainActivity extends Activity {
 
             //点击某个项目的空白处将展示该服务的详细信息，下面的代码是解析各类FLAG的，挺麻烦，不过没别的方法。
             convertView.setOnClickListener(view -> {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(MainActivity.this);
                 int fb = info.feedbackType;
                 String feedback = "";
                 if ((fb & 32) != 0) feedback += "盲文反馈\n";
@@ -524,7 +534,7 @@ public class MainActivity extends Activity {
 
         private void createPermissionDialog() {
             String cmd = "pm grant " + getPackageName() + " android.permission.WRITE_SECURE_SETTINGS";
-            new AlertDialog.Builder(MainActivity.this)
+            new MaterialAlertDialogBuilder(MainActivity.this)
                     .setMessage("安卓5.1和更低版本的设备，需将本APP转换为系统应用。\n\n安卓6.0及更高版本的设备，在下面三个方法中任选一个均可：\n1.连接电脑USB调试后在电脑CMD执行以下命令：\nadb shell " + cmd + "\n\n2.root激活。\n\n3.Shizuku激活。")
                     .setTitle("需要安全设置写入权限")
                     .setPositiveButton("复制命令", (dialogInterface, i) -> {
@@ -558,7 +568,7 @@ public class MainActivity extends Activity {
             TextView texta;
             TextView textb;
             ImageView imageView;
-            Switch sw;
+            SwitchMaterial sw;
             ImageButton ib;
         }
 
@@ -571,12 +581,22 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             perm = checkSelfPermission(Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED;
         else {
-            PackageInfo packageInfo = new PackageInfo();
             try {
-                packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_CONFIGURATIONS);
-            } catch (PackageManager.NameNotFoundException ignored) {
+                // 1. 获取 PackageInfo
+                PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_CONFIGURATIONS);
+
+                // 2.【关键】只在成功获取到 packageInfo 之后，才使用它
+                //    同时检查 applicationInfo 是否为 null，做到万无一失
+                if (packageInfo != null && packageInfo.applicationInfo != null) {
+                    perm = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+                } else {
+                    // 如果获取失败或 applicationInfo 为空，则认为没有权限
+                    perm = false;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                perm = false;
+                Log.e(TAG, "Could not find PackageInfo for our own package.", e);
             }
-            perm = (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
         }
         return !perm;
     }

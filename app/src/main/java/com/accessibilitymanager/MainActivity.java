@@ -510,7 +510,7 @@ public class MainActivity extends AppCompatActivity {
                     textView.setPadding(40, 20, 40, 20);
                     textView.setTextSize(18f);
                     textView.setAlpha(0.8f);
-                    textView.setTextColor(getResources().getColor(R.color.black));
+                    textView.setTextColor(Color.BLACK);
                     textView.setText(String.format("服务类名：\n%s\n\n特殊能力：\n%s\n生效范围：\n%s\n\n反馈方式：\n%s\n捕获事件类型：\n%s\n特殊标志：\n%s", serviceName, capa, range, feedback, event, flag));
                     scrollView.addView(textView);
                     if (info.getSettingsActivityName() != null && !info.getSettingsActivityName().isEmpty())

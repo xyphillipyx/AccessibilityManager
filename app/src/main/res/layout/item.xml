@@ -16,8 +16,7 @@
         android:clickable="false"
         android:duplicateParentState="true"
         android:focusable="false"
-        app:cardElevation="2dp"
-        app:strokeWidth="0dp">
+        style="@style/Widget.Material3.CardView.Filled">
 
         <!-- 你的 LinearLayout 和所有内部控件都保持原样，无需改动 -->
         <LinearLayout
